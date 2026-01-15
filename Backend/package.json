@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "luxon": "^3.7.2",
+    "mysql2": "^3.16.0",
+    "sequelize": "^6.37.7",
+    "sequelize-typescript": "^2.1.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^25.0.8",
+    "eslint": "^9.39.2",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.7.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
