@@ -8,6 +8,7 @@ import Checkout from "../components/Checkout";
 export default function VendorsDetails() {
   const { id } = useParams<{ id: string }>();
   const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [date, setDate] = useState<string>(
     DateTime.now().setZone("Africa/Lagos").toISODate() || ""
   );
@@ -49,6 +50,12 @@ export default function VendorsDetails() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
+      {successMessage && (
+        <div className="fixed bottom-20 mx-auto w-[90vw] bg-green-500 text-white px-4 py-2 rounded shadow-lg text-center z-50">
+          {successMessage}
+        </div>
+      )}
+
       {vendor && (
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-sky-600">{vendor.name}</h1>
@@ -107,8 +114,17 @@ export default function VendorsDetails() {
         <Checkout
           vendor={vendor}
           slot={selectedSlot}
-          onSuccess={() => {
+          onSuccess={async () => {
             setSelectedSlot(null);
+            setSuccessMessage("Booking & Payment successful!");
+            setTimeout(() => setSuccessMessage(null), 3000);
+
+            if (vendor) {
+              const updatedSlots = await getVendorAvailability(vendor.id, date);
+              setSlots(
+                updatedSlots.map((iso: string) => ({ slot_start_utc: iso }))
+              );
+            }
           }}
         />
       )}
