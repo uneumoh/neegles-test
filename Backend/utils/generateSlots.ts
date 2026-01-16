@@ -7,7 +7,7 @@ export const generateSlots = (
   const slots: DateTime[] = [];
   let cursor = startUTC;
 
-  while (cursor < endUTC) {
+  while (cursor <= endUTC) {
     slots.push(cursor);
     cursor = cursor.plus({ minutes: 30 });
   }

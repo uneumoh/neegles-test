@@ -19,9 +19,6 @@ export const createBooking = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  /**
-   * 1️⃣ Idempotency check
-   */
   const existingKey = await IdempotencyKey.findByPk(idempotencyKey);
   if (existingKey) {
     try {
@@ -31,25 +28,19 @@ export const createBooking = async (req: Request, res: Response) => {
     }
   }
 
-  /**
-   * 2️⃣ Convert Lagos → UTC + 2h buffer
-   */
-  const startUTC = DateTime.fromISO(startISO, { zone: "Africa/Lagos" })
-    .minus({ hours: 2 })
-    .toUTC();
+  const startUTC = DateTime.fromISO(startISO, {
+    zone: "Africa/Lagos",
+  }).toUTC();
 
-  const endUTC = DateTime.fromISO(endISO, { zone: "Africa/Lagos" })
-    .plus({ hours: 2 })
-    .toUTC();
+  const endUTC = DateTime.fromISO(endISO, {
+    zone: "Africa/Lagos",
+  }).toUTC();
 
   const slots = generateSlots(startUTC, endUTC);
 
   const transaction = await sequelize.transaction();
 
   try {
-    /**
-     * 3️⃣ Create booking
-     */
     const booking = await Booking.create(
       {
         vendor_id: vendorId,
@@ -60,9 +51,7 @@ export const createBooking = async (req: Request, res: Response) => {
       { transaction }
     );
 
-    /**
-     * 4️⃣ Insert booking slots (30-min granularity)
-     */
+    console.log("Slots to book:", slots);
     for (const slot of slots) {
       await BookingSlot.create(
         {
@@ -74,9 +63,6 @@ export const createBooking = async (req: Request, res: Response) => {
       );
     }
 
-    /**
-     * 5️⃣ Store idempotent response
-     */
     const responseBody = { bookingId: booking.id };
 
     await IdempotencyKey.create(
